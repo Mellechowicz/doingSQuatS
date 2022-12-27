@@ -1,20 +1,30 @@
 #!/usr/bin/python3
 
-from sys import argv
 import os
+from sys import argv
 from subprocess import check_output
 import numpy as np
 import counter
 
-if os.path.isfile('/home/andrzej/andrzej/sSQSgenerator/_poscar_compare'):
-    CMPR='/home/andrzej/andrzej/sSQSgenerator/_poscar_compare'
-elif os.path.isfile('/home/andrzej/MEGAsync/sSQSgenerator/_poscar_compare'):
-    CMPR='/home/andrzej/MEGAsync/sSQSgenerator/_poscar_compare'
-elif os.path.isfile('/home/andrzej/alloys/sSQSgenerator/_poscar_compare'):
-    CMPR='/home/andrzej/alloys/sSQSgenerator/_poscar_compare'
-else:
-    print("_poscar_compare not found!")
-    exit(42)
+localpath   = os.getcwd()
+possibility = []
+while localpath != '/home':
+    possibility.append(localpath+'/poscar_compare.x')
+    localpath = os.path.dirname(localpath)
+
+CMPR = None
+for path in possibility:
+    if os.path.isfile(path):
+        print(path)
+        CMPR=path
+        break
+
+if CMPR is None:
+    if len(argv) > 1:
+        CMPR=argv[1]
+    else:
+        print("poscar_compare not found!")
+        exit(42)
 
 found = []
 statistics = {}

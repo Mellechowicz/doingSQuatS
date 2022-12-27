@@ -1,12 +1,17 @@
 #!/bin/bash
 
-if [ -s /home/andrzej/andrzej/sSQSgenerator/_compare.py ]; then
-  CMP='/home/andrzej/andrzej/sSQSgenerator/_compare.py'
-elif [ -s /home/andrzej/MEGAsync/sSQSgenerator/_compare.py ]; then
-  CMP='/home/andrzej/MEGAsync/sSQSgenerator/_compare.py'
-elif [ -s /home/andrzej/alloys/sSQSgenerator/_compare.py ]; then
-  CMP='/home/andrzej/alloys/sSQSgenerator/_compare.py'
-else
+DIR=$PWD
+
+while [ "${DIR}" != "${HOME}" ]; do
+  if [ -s ${DIR}/_compare.py ]; then
+    CMP="${DIR}/_compare.py"
+    echo "Found _compare.py @ $CMP"
+    break
+  fi
+  DIR=$(dirname $DIR)
+done
+
+if [ ! -s $CMP ]; then
   echo 'I have not found _compare.py!'
   exit
 fi
@@ -17,12 +22,13 @@ else
   DIRS="*"
 fi
 
+
 for d in ${DIRS}; do
 (
   cd $d 2> /dev/null || exit
   toilet -f pagga $d
   if [ ! -s statistcs.txt ]; then
-    ${CMP} #& disown
+    python3 ${CMP} #& disown
   fi
   toilet -f pagga "$d done"
 )
