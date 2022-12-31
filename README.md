@@ -8,3 +8,7 @@ This is a set of programs and scripts capable of generating a set of computation
 A flow chart of generating a 70/30 **bcc** *tungsten-chromium* alloy
 
 [1] S. H. Wei, L. G. Ferreira, J. E. Bernard, and A. Zunger, Phys. Rev. B **42**, 9622 (1990).
+
+
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7496851.svg)](https://doi.org/10.5281/zenodo.7496851)
