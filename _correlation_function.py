@@ -36,6 +36,7 @@ pwr = 1.0
 result={}
 equivalents={}
 equivalentsresults={}
+idealcorrelations={}
 if len(argv) >= 3:
     radial_correlation={}
     full_correlation={}
@@ -62,6 +63,7 @@ for file in os.listdir(directory):
     idealCorrelation = 0.0
     for population in loader(0)['cellAtoms']:
         idealCorrelation += np.power(population/np.sum(loader(0)['cellAtoms']),2)
+    idealcorrelations[filename] = idealCorrelation
 
     penalty = 0.0
     distances = {}
@@ -159,16 +161,41 @@ for first,filename in enumerate(radial_correlation.keys()):
         axs[1].plot(data[:,0],data[:,1],'o',label=filename[:-5],alpha=0.5,ms=9)
     else:
         axs[1].plot(data[:,0],data[:,1],'o',alpha=0.4,ms=9)
-
+correlmin =  2.0
+correlmax = -2.0
 axs[0].legend()
-axs[1].set_ylim((0.0,1.0))
-axs[1].legend(fontsize=5,ncol=3)
-prob = np.array((0.59,0.41))
-ideal = np.sum(prob*prob)
-axs[0].arrow(axs[0].get_xlim()[0],ideal,axs[0].get_xlim()[1]-axs[0].get_xlim()[0],0.0)
-axs[1].arrow(axs[1].get_xlim()[0],ideal,axs[1].get_xlim()[1]-axs[1].get_xlim()[0],0.0)
-axs[1].set_xlabel('coordination sphere radii, R (A)')
-axs[0].set_ylabel('ideal value: '+str(ideal))
-axs[1].set_ylabel('correlation function, C (1)')
-#plt.show()
+axs[1].legend(fontsize=4,ncol=6)
+
+values = ''
+for i,filename in enumerate(idealcorrelations):
+    axs[1].arrow(axs[1].get_xlim()[0],idealcorrelations[filename],axs[1].get_xlim()[1]-axs[1].get_xlim()[0],0.0)
+    if i%2 == 1:
+        values+="% .5f"%idealcorrelations[filename]
+        if i < len(idealcorrelations)-1:
+            values+="\n                     "
+    else:
+        values+="% .5f "%idealcorrelations[filename]
+    if idealcorrelations[filename] > correlmax:
+        correlmax = idealcorrelations[filename]
+    if idealcorrelations[filename] < correlmin:
+        correlmin = idealcorrelations[filename]
+
+vax = axs[0].twiny()
+vax.set_xlim((0,12))
+axs[0].set_xticks([])
+axs[1].set_xlim((0.2,12))
+axs[1].set_ylim((correlmin-0.1,correlmax+0.1))
+
+from matplotlib.offsetbox import AnchoredText
+
+at = AnchoredText(
+        "Error funcion:\n"+"".join(["%s%s: % .2e\n"%(f[:5],f[-9:-5],result[f]) for f in result]), prop=dict(size=6), frameon=True, loc='upper left', pad=0.1, alpha=0.8)
+at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+axs[1].add_artist(at)
+
+vax   .set_xlabel('distance from slected sites, d (Å)')
+axs[1].set_xlabel('coordination sphere radii, R (Å)')
+axs[0].set_ylabel('ideal values: '+values,fontsize=6)
+axs[1].set_ylabel('correlation function, C [0;1]')
+
 plt.savefig(figname,dpi=300)
